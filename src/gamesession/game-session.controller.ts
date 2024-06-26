@@ -12,8 +12,9 @@ export class GameSessionController {
   async createSession(
     @Body('gameMode') gameMode: string,
     @Body('playerIds') playerIds: string[],
-  ): Promise<GameSession> {
-    return this.gameSessionService.createGameSession(gameMode, playerIds);
+  ): Promise<any> {
+    const gamesession = await this.gameSessionService.createGameSession(gameMode, playerIds);
+    return gamesession._id;
   }
 
   @Post('/update-player-stats/:sessionId')
