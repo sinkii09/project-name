@@ -8,10 +8,11 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { JwtStrategy } from './auth/jwt.strategy';
-import { EventsModule } from './websocket/events.module';
 import { MatchmakerModule } from './matchmaker/matchmaker.module';
 import { FriendModule } from './friend/friend.module';
 import { ChatModule } from './websocket/chat.module';
+import { ChatGateway } from './websocket/chat.gateway';
+import { GameSessionModule } from './gamesession/game-session.module';
 @Module({
   imports: [AppModule, UsersModule,AuthModule,ChatModule,MatchmakerModule,
     ConfigModule.forRoot(),
@@ -19,6 +20,7 @@ import { ChatModule } from './websocket/chat.module';
       dbName: "UserDB",
     }),
     FriendModule,
+    GameSessionModule,
   ],
   controllers: [AppController],
   providers: [AppService,
@@ -27,6 +29,7 @@ import { ChatModule } from './websocket/chat.module';
       useClass: JwtAuthGuard
     },
     JwtStrategy,
+    ChatGateway
   ],
   
 })

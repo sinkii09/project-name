@@ -9,6 +9,6 @@ import { HttpModule, HttpService } from '@nestjs/axios';
   imports: [HttpModule,MongooseModule.forFeature([{name: User.name,schema: UserSchema }])],
   controllers: [UsersController],
   providers: [UsersService,AuthService],
-  exports: [UsersService],
+  exports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),UsersService],
 })
 export class UsersModule {}
