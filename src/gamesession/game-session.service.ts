@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { GameSession, GameSessionSchema, Player } from './game-session.schema';
 import { User } from 'src/users/schemas/user.schemas';
 import { ScoringSystem } from './scoring-system';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class GameSessionService {
@@ -108,6 +109,36 @@ export class GameSessionService {
         place: p.playerPlace,
       }));
         await gameSession.save();
+      }
+
+    async getLastSessionByUserId(userId: string) {
+        const user = await this.userModel.findById(userId);
+        const lastSession = await this.gameSessionModel.findById(user.lastGameSession)
+
+    
+        if (!lastSession) {
+          throw new NotFoundException('No game session found for this user');
+        }
+        const playerIds = lastSession.players.map(p => p.userId);
+        const playerResult = await this.userModel.find({ _id: { $in: playerIds } }).exec();
+        // Map player details to session data
+        const playerInfo = lastSession.players.map(p => {
+           const user = playerResult.find(u => u._id.toString() === p.userId.toString());
+          return {
+            name: user?.username,
+            kills: p.kills,
+            deaths: p.deaths,
+            place: p.place,
+            rpEarn: p.rankPointsEarned,
+            rank:user.rankpoints
+          };
+        });
+    
+        return {
+          sessionId: lastSession._id,
+          gameMode: lastSession.gameMode,
+          gameResult: playerInfo,
+        };
       }
     async findGameSessions(): Promise<GameSession[]> {
         return await this.gameSessionModel.find().exec();

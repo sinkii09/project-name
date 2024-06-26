@@ -1,7 +1,8 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { GameSessionService } from './game-session.service';
 import { GameSession } from './game-session.schema';
 import { SkipAuth } from 'src/auth/auth.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @SkipAuth()
 @Controller('game-sessions')
@@ -24,5 +25,10 @@ export class GameSessionController {
   ) {
     await this.gameSessionService.updatePlayerStats(sessionId, body.playerStats);
     return { message: 'Player stats updated successfully' };
+  }
+  @UseGuards(JwtAuthGuard)
+  @Get('last-session/:userId')
+  async getLastSessionByUserId(@Param('userId') userId: string) {
+    return this.gameSessionService.getLastSessionByUserId(userId);
   }
 }
