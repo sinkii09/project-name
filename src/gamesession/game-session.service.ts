@@ -125,7 +125,7 @@ export class GameSessionService {
         const playerInfo = lastSession.players.map(p => {
            const user = playerResult.find(u => u._id.toString() === p.userId.toString());
           return {
-            name: user?.username,
+            name: user?.name,
             kills: p.kills,
             deaths: p.deaths,
             place: p.place,
