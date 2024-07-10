@@ -46,7 +46,9 @@ export class GameSessionService {
         return createdGameSession;
     }
     async updatePlayerStats(sessionId: string, playerStats: { playerId: string, kills: number, deaths: number }[]) {
+      try {  
         const gameSession = await this.gameSessionModel.findById(sessionId).exec();
+
         if (!gameSession) {
           throw new Error('Game session not found');
         }
@@ -109,8 +111,11 @@ export class GameSessionService {
         place: p.playerPlace,
       }));
         await gameSession.save();
+    }catch (error) {
+      console.error('Error update session:', error);
+      return { success: false, error: error.message };
       }
-
+    }
     async getLastSessionByUserId(userId: string) {
         const user = await this.userModel.findById(userId);
         const lastSession = await this.gameSessionModel.findById(user.lastGameSession)

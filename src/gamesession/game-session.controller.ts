@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
 import { GameSessionService } from './game-session.service';
 import { GameSession } from './game-session.schema';
 import { SkipAuth } from 'src/auth/auth.decorator';
@@ -23,8 +23,19 @@ export class GameSessionController {
     @Param('sessionId') sessionId: string,
     @Body() body: { playerStats: { playerId: string, kills: number, deaths: number }[] }
   ) {
-    await this.gameSessionService.updatePlayerStats(sessionId, body.playerStats);
-    return { message: 'Player stats updated successfully' };
+    try {
+      await this.gameSessionService.updatePlayerStats(sessionId, body.playerStats);
+      return { message: 'Player stats updated successfully' };
+    } catch (error) {
+      console.error('Error updating player stats:', error);
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'Failed to update player stats. ' + (error.message || 'Unknown error'),
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
   @UseGuards(JwtAuthGuard)
   @Get('last-session/:userId')
