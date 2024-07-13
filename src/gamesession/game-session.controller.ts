@@ -24,7 +24,7 @@ export class GameSessionController {
     @Body() body: { playerStats: { playerId: string, kills: number, deaths: number }[] }
   ) {
     try {
-      return await this.gameSessionService.updatePlayerStats(sessionId, body.playerStats);
+      return await this.gameSessionService.updatePlayerStats(sessionId.trim(), body.playerStats);
     } catch (error) {
       console.error('Error updating player stats:', error);
       throw new HttpException(
