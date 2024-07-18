@@ -60,7 +60,7 @@ export class UsersService {
         await user.save();
     }
     async getTopRankUser(): Promise<User[]> {
-        const users = await this.userModel.find().sort({ rankpoints: -1 }).limit(10).select('username rankpoints').exec();
+        const users = await this.userModel.find().sort({ rankpoints: -1 }).limit(10).select('name rankpoints').exec();
         const rankedUsers = users.map((user, index) => ({
             ...user.toObject(),
             rank: index + 1 
