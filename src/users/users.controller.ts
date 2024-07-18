@@ -6,6 +6,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { SkipAuth } from 'src/auth/auth.decorator';
 import { UpdateUserRankDto } from './dto/update-rank.dto';
 import { JwtService } from '@nestjs/jwt';
+import { request } from 'http';
 
 
 @Controller('users')
@@ -81,6 +82,16 @@ export class UsersController {
       return this.userService.findUserByIdOrName(req.user._id);
     }
     @UseGuards(JwtAuthGuard)
+    @Get('leader')
+    async getLeader() :Promise<User[]>{
+      return await this.userService.getTopRankUser();
+    }
+    @UseGuards(JwtAuthGuard)
+    @Get('get-rank')
+    async getUserRank(@Request() req) {
+      return await this.userService.getUserRank(req.user._id);
+    }
+    @UseGuards(JwtAuthGuard)
     @Get(':userInput')
     async FindUserWithNameOrId(@Param('userInput') userInput: string)
     {
@@ -91,5 +102,12 @@ export class UsersController {
                 return payload;
             }
             throw new UnauthorizedException();
+    }
+
+
+    @UseGuards(JwtAuthGuard)
+    @Get('all')
+    getAll() : Promise<User[]>{
+      return this.userService.findAll();
     }
 }

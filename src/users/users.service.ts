@@ -59,6 +59,29 @@ export class UsersService {
         
         await user.save();
     }
+    async getTopRankUser(): Promise<User[]> {
+        const users = await this.userModel.find().sort({ rankpoints: -1 }).limit(10).select('username rankpoints').exec();
+        const rankedUsers = users.map((user, index) => ({
+            ...user.toObject(),
+            rank: index + 1 
+          }));
+          return rankedUsers;
+    }
+    async getUserRank(userId: string): Promise<any> {
+    
+        const user = await this.userModel.findById(userId).select('rankpoints').exec();
+        if (!user) {
+          throw new Error('User not found');
+        }
+    
+        const rankpoints = user.rankpoints;
+    
+        const higherRankCount = await this.userModel.countDocuments({ rankpoints: { $gt: rankpoints } }).exec();
+    
+        const userRank = higherRankCount + 1;
+    
+        return { userId,rankpoints: rankpoints, rank: userRank };
+      }
     async findUserByIdOrName(userInput: string): Promise<User>
     {
         const isObjectId = Types.ObjectId.isValid(userInput);
