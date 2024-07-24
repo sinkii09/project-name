@@ -16,7 +16,7 @@ export class InventoryItem {
   quantity: number;
 
   @Prop({ default: Date.now })
-  purchaseDate: Date;
+  purchaseDate?: Date;
 }
 export const InventoryItemSchema = SchemaFactory.createForClass(InventoryItem);
 @Schema()

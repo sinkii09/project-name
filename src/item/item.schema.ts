@@ -18,8 +18,8 @@ export class Item extends Document {
   @Prop({default: true})
   unique: boolean;
   
-  @Prop()
-  category: string;
+  @Prop({default: 'hat'})
+  category?: string;
 }
 
 export const ItemSchema = SchemaFactory.createForClass(Item);

@@ -14,6 +14,9 @@ import { ChatModule } from './websocket/chat.module';
 import { ChatGateway } from './websocket/chat.gateway';
 import { GameSessionModule } from './gamesession/game-session.module';
 import { ItemModule } from './item/item.module';
+import { ShopController } from './shop/shop.controller';
+import { ShopService } from './shop/shop.service';
+import { ShopModule } from './shop/shop.module';
 @Module({
   imports: [AppModule, UsersModule,AuthModule,ChatModule,MatchmakerModule,ItemModule,
     ConfigModule.forRoot(),
@@ -22,15 +25,17 @@ import { ItemModule } from './item/item.module';
     }),
     FriendModule,
     GameSessionModule,
+    ShopModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, ShopController],
   providers: [AppService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard
     },
     JwtStrategy,
-    ChatGateway
+    ChatGateway,
+    ShopService
   ],
   
 })
