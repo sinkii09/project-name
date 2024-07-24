@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Put, UseGuards,Request, Get, Post, UnauthorizedException, Req, BadRequestException, Res, HttpStatus, HttpException } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Put, UseGuards,Request, Get, Post, UnauthorizedException, Req, BadRequestException, Res, HttpStatus, HttpException, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './schemas/user.schemas';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { request } from 'http';
 import { AddItemDto } from './dto/add-item.dto';
 import { UserInventoryDto } from './dto/inventory.dto';
+import { Types } from 'mongoose';
 
 
 @Controller('users')
@@ -108,6 +109,18 @@ export class UsersController {
             throw new HttpException(error.message, error.status || HttpStatus.INTERNAL_SERVER_ERROR);
           }
     }
+    @UseGuards(JwtAuthGuard)
+    @Get('get-allplayers-equipped')
+    async getEquippedItems(@Body('userIds') userIds: string[]): Promise<any[]> {
+        // const userIdArray = userIds.split(',').map(id => id.trim());
+        const objectIdArray = userIds.map(id => {
+          if (!Types.ObjectId.isValid(id)) {
+            throw new Error(`Invalid ObjectId: ${id}`);
+          }
+          return new Types.ObjectId(id);
+        });
+        return this.userService.getEquippedItemsForUsers(objectIdArray);
+      }
     @UseGuards(JwtAuthGuard)
     @Get(':userInput')
     async FindUserWithNameOrId(@Param('userInput') userInput: string)

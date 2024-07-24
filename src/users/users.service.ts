@@ -160,6 +160,49 @@ export class UsersService {
     
         return inventoryItem;
       }
+async getEquippedItemsForUsers(userIds: Types.ObjectId[]): Promise<any[]> {
+
+    // Find users and populate their inventory's itemId
+    const users = await this.userModel
+        .find({ _id: { $in: userIds } })
+        .populate('inventory.itemId') // Populate item details
+        .exec();
+
+
+    const itemIds = users.flatMap(user => user.inventory.map(item => item.itemId));
+
+
+    const items = await this.itemModel.find({ _id: { $in: itemIds } }).exec();
+
+
+    const itemDictionary = items.reduce((dict, item) => {
+      dict[item._id.toString()] = item;
+      return dict;
+    }, {} as { [key: string]: ItemDocument });
+
+    const equippedItems = await Promise.all(users.map(async user => {
+        const inventoryItems = await Promise.all(user.inventory
+          .filter(item => item.equipped)
+          .map(async inventoryItem => {
+            const itemDetails = await this.itemModel.findById(inventoryItem.itemId).exec();
+            return {
+              itemId: itemDetails._id.toString(),
+              name: itemDetails.name,
+              category: itemDetails.category,
+              quantity: inventoryItem.quantity,
+              purchaseDate: inventoryItem.purchaseDate,
+            };
+          })
+        );
+      
+        return {
+          userId: user._id.toString(),
+          equippedItems: inventoryItems,
+        };
+      }));
+
+    return equippedItems;
+      }
     async findUserByIdOrName(userInput: string): Promise<User>
     {
         const isObjectId = Types.ObjectId.isValid(userInput);
