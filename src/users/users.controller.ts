@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Put, UseGuards,Request, Get, Post, UnauthorizedException, Req, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Put, UseGuards,Request, Get, Post, UnauthorizedException, Req, BadRequestException, Res, HttpStatus, HttpException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './schemas/user.schemas';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -97,6 +97,16 @@ export class UsersController {
     @Get('get-inventory')
     async getUserInventory(@Request() req):Promise<UserInventoryDto>{
        return this.userService.getUserInventory(req.user._id);
+    }
+    @UseGuards(JwtAuthGuard)
+    @Patch(':itemId/equip-item')
+    async equipItem(@Param('itemId') itemId: string,@Request() req){
+        try {
+            const item = await this.userService.equipItem(req.user._id, itemId);
+            return item;
+          } catch (error) {
+            throw new HttpException(error.message, error.status || HttpStatus.INTERNAL_SERVER_ERROR);
+          }
     }
     @UseGuards(JwtAuthGuard)
     @Get(':userInput')

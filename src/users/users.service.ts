@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { User } from './schemas/user.schemas';
+import { InventoryItem, User } from './schemas/user.schemas';
 import { Connection, Model, Types } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -107,7 +107,7 @@ export class UsersService {
                 inventoryItem.purchaseDate = new Date();
             }
         } else {
-          user.inventory.push({ itemId: new Types.ObjectId(itemId), quantity, purchaseDate: new Date() });
+          user.inventory.push({ itemId: new Types.ObjectId(itemId), equipped: false, quantity, purchaseDate: new Date() });
         }
     
         return user.save();
@@ -118,6 +118,7 @@ export class UsersService {
         const inventory = user.inventory.map(item => ({
           //itemId: item.itemId._id.toString(),
           itemDetails: item.itemId,
+          equipped: item.equipped,
           quantity: item.quantity,
           purchaseDate: item.purchaseDate,
            
@@ -125,7 +126,40 @@ export class UsersService {
     
         return { inventory };
       }
-      
+      async equipItem(userId: string, itemId: string): Promise<InventoryItem> {
+        const user = await this.userModel.findById(userId);
+        if (!user) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        }
+    
+        const inventoryItem = user.inventory.find(i => i.itemId.toString() === itemId);
+        if (!inventoryItem) {
+            throw new HttpException('Item not found in user inventory', HttpStatus.NOT_FOUND);
+        }
+
+        const item = await this.itemModel.findById(itemId).exec();
+        if (!item) {
+            throw new HttpException('Item not found', HttpStatus.NOT_FOUND);
+        }
+
+        if (inventoryItem.equipped) {
+            throw new HttpException('Item is already equipped', HttpStatus.BAD_REQUEST);
+        }
+        const category = item.category;
+        const unequipPromises = user.inventory
+        .filter(i => i.itemId.toString() !== itemId && i.equipped)
+        .map(async (i) => {
+            const itemInInventory = await this.itemModel.findById(i.itemId).exec();
+            if (itemInInventory && itemInInventory.category === category) {
+                i.equipped = false;
+            }
+        });
+        await Promise.all(unequipPromises);
+        inventoryItem.equipped = true;
+        await user.save();
+    
+        return inventoryItem;
+      }
     async findUserByIdOrName(userInput: string): Promise<User>
     {
         const isObjectId = Types.ObjectId.isValid(userInput);

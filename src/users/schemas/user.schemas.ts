@@ -9,6 +9,9 @@ export class InventoryItem {
   @Prop({ type: Types.ObjectId, ref: 'Item' })
   itemId: Types.ObjectId;
 
+  @Prop({ default: false})
+  equipped: boolean;
+
   @Prop()
   quantity: number;
 

@@ -1,11 +1,12 @@
-import { IsString, IsNumber, IsDate } from 'class-validator';
+import { IsString, IsNumber, IsDate, IsBoolean } from 'class-validator';
 
 export class InventoryItemDto {
 //   @IsString()
 //   itemId: string;
 
   itemDetails: any;
-
+    @IsBoolean()
+    equipped: boolean;
   @IsNumber()
   quantity: number;
 
