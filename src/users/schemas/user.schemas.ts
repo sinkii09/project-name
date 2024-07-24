@@ -27,7 +27,7 @@ export class User
     @Prop({type:Number, required:false, default: 100})
     gold: number;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'GameSession', required: true})
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'GameSession', required: false})
     lastGameSession: mongoose.Schema.Types.ObjectId;
     @Prop([
         {

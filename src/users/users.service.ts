@@ -80,7 +80,7 @@ export class UsersService {
     
         const userRank = higherRankCount + 1;
     
-        return { userId,rankpoints: rankpoints, rank: userRank };
+        return { userId, rankpoints: rankpoints, rank: userRank };
       }
     async findUserByIdOrName(userInput: string): Promise<User>
     {
