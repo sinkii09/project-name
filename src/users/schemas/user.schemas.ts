@@ -1,9 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import{HydratedDocument} from 'mongoose';
+import{HydratedDocument, Types} from 'mongoose';
 import * as mongoose from 'mongoose';
 
 export type UserDocument =  HydratedDocument<User>;
 
+@Schema()
+export class InventoryItem {
+  @Prop({ type: Types.ObjectId, ref: 'Item' })
+  itemId: Types.ObjectId;
+
+  @Prop()
+  quantity: number;
+
+  @Prop({ default: Date.now })
+  purchaseDate: Date;
+}
+export const InventoryItemSchema = SchemaFactory.createForClass(InventoryItem);
 @Schema()
 export class User
 {
@@ -42,5 +54,8 @@ export class User
         name: { type: String }
     }])
     friendRequests: Array<{ id: mongoose.Schema.Types.ObjectId, name: string }>;
+
+    @Prop([InventoryItem])
+    inventory: InventoryItem[];
 }
 export const UserSchema = SchemaFactory.createForClass(User);

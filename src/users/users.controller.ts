@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Put, UseGuards,Request, Get, Post, UnauthorizedException, Req } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Put, UseGuards,Request, Get, Post, UnauthorizedException, Req, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './schemas/user.schemas';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -7,6 +7,8 @@ import { SkipAuth } from 'src/auth/auth.decorator';
 import { UpdateUserRankDto } from './dto/update-rank.dto';
 import { JwtService } from '@nestjs/jwt';
 import { request } from 'http';
+import { AddItemDto } from './dto/add-item.dto';
+import { UserInventoryDto } from './dto/inventory.dto';
 
 
 @Controller('users')
@@ -92,6 +94,11 @@ export class UsersController {
       return await this.userService.getUserRank(req.user._id);
     }
     @UseGuards(JwtAuthGuard)
+    @Get('get-inventory')
+    async getUserInventory(@Request() req):Promise<UserInventoryDto>{
+       return this.userService.getUserInventory(req.user._id);
+    }
+    @UseGuards(JwtAuthGuard)
     @Get(':userInput')
     async FindUserWithNameOrId(@Param('userInput') userInput: string)
     {
@@ -104,10 +111,20 @@ export class UsersController {
             throw new UnauthorizedException();
     }
 
-
     @UseGuards(JwtAuthGuard)
     @Get('all')
     getAll() : Promise<User[]>{
       return this.userService.findAll();
+    }
+
+    @SkipAuth()
+    @Post('add-item')
+    async addItemToUserInventory(@Body() addItemDto: AddItemDto) {
+      try {
+        const { userId, itemId, quantity } = addItemDto;
+        return await this.userService.addItemToUserInventory(userId, itemId, quantity);
+      } catch (error) {
+        throw new BadRequestException(error.message);
+      }
     }
 }

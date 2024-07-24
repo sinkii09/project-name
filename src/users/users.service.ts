@@ -7,10 +7,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserRankDto } from './dto/update-rank.dto';
+import { Item, ItemDocument } from 'src/item/item.schema';
+import { UserInventoryDto } from './dto/inventory.dto';
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel(User.name) private userModel: Model<User>){}
+    constructor(@InjectModel(User.name) private userModel: Model<User>,
+                @InjectModel(Item.name) private itemModel: Model<ItemDocument>,){}
     
     async createUser(createUserDto: CreateUserDto): Promise<User>
     {
@@ -82,6 +85,47 @@ export class UsersService {
     
         return { userId, rankpoints: rankpoints, rank: userRank };
       }
+
+    async addItemToUserInventory(userId: string, itemId: string, quantity: number): Promise<User> {
+        const user = await this.userModel.findById(userId);
+        const item = await this.itemModel.findById(itemId);
+    
+        if (!user || !item) {
+          throw new Error('User or Item not found');
+        }
+    
+        const inventoryItem = user.inventory.find(i => i.itemId.toString() === itemId);
+    
+        if (inventoryItem) {
+            if(item.unique)
+            {
+                throw new Error('User already have this item');
+            }
+            else
+            {
+                inventoryItem.quantity += quantity;
+                inventoryItem.purchaseDate = new Date();
+            }
+        } else {
+          user.inventory.push({ itemId: new Types.ObjectId(itemId), quantity, purchaseDate: new Date() });
+        }
+    
+        return user.save();
+      }
+    async getUserInventory(userId: string): Promise<UserInventoryDto> {
+        const user = await this.userModel.findById(userId).populate('inventory.itemId').exec();
+    
+        const inventory = user.inventory.map(item => ({
+          //itemId: item.itemId._id.toString(),
+          itemDetails: item.itemId,
+          quantity: item.quantity,
+          purchaseDate: item.purchaseDate,
+           
+        }));
+    
+        return { inventory };
+      }
+      
     async findUserByIdOrName(userInput: string): Promise<User>
     {
         const isObjectId = Types.ObjectId.isValid(userInput);

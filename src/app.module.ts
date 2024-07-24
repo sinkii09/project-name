@@ -13,8 +13,9 @@ import { FriendModule } from './friend/friend.module';
 import { ChatModule } from './websocket/chat.module';
 import { ChatGateway } from './websocket/chat.gateway';
 import { GameSessionModule } from './gamesession/game-session.module';
+import { ItemModule } from './item/item.module';
 @Module({
-  imports: [AppModule, UsersModule,AuthModule,ChatModule,MatchmakerModule,
+  imports: [AppModule, UsersModule,AuthModule,ChatModule,MatchmakerModule,ItemModule,
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_URI,{
       dbName: "UserDB",
