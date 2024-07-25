@@ -6,13 +6,15 @@ import { Shop, ShopDocument } from './shop.schema';
 import { UserDocument } from 'src/users/schemas/user.schemas';
 import { CreateItemDto } from './dto/create-item.dto';
 import { CreateShopDto } from './dto/shop.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class ShopService {
     constructor(
         @InjectModel('Item') private readonly itemModel: Model<ItemDocument>,
         @InjectModel('Shop') private readonly shopModel: Model<ShopDocument>,
-        @InjectModel('User') private readonly userModel: Model<UserDocument>
+        @InjectModel('User') private readonly userModel: Model<UserDocument>,
+        private userService: UsersService
       ) {}
 
 
@@ -80,7 +82,7 @@ export class ShopService {
             user.gold -= item.price;
             user.inventory.push({ itemId: itemObjectId, equipped: false, quantity: 1 });
             await user.save();
-      
+              this.userService.equipItem(userId,item._id.toString())
             return { success: true, message: 'Item purchased successfully' };
           } catch (error) {
             if (error instanceof NotFoundException || error instanceof BadRequestException) {

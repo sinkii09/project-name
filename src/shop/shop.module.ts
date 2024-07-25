@@ -5,9 +5,11 @@ import { ShopController } from './shop.controller';
 import { ShopService } from './shop.service';
 import { Item, ItemSchema } from 'src/item/item.schema';
 import { User, UserSchema } from 'src/users/schemas/user.schemas';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
-    imports: [MongooseModule.forFeature([{ name: Shop.name, schema: ShopSchema }]), 
+    imports: [UsersModule,
+            MongooseModule.forFeature([{ name: Shop.name, schema: ShopSchema }]), 
             MongooseModule.forFeature([{ name: Item.name, schema: ItemSchema }]),
             MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
   controllers: [ShopController],
