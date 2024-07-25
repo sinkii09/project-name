@@ -82,6 +82,7 @@ export class ShopService {
             user.gold -= item.price;
             user.inventory.push({ itemId: itemObjectId, equipped: false, quantity: 1 });
             await user.save();
+            await  this.userService.equipItem(userId,item._id.toString())
             return { success: true, message: 'Item purchased successfully' };
           } catch (error) {
             if (error instanceof NotFoundException || error instanceof BadRequestException) {
