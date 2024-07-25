@@ -38,7 +38,7 @@ export class AuthService {
         return user
     }
     async signIn(user: User): Promise<any>{
-        const payload = {id:user._id, username:user.username, ingameName:user.name, rankpoint:user.rankpoints, role: 'client'}
+        const payload = {id:user._id, username:user.username, ingameName:user.name,gold:user.gold, rankpoint:user.rankpoints,role: 'client'}
         const access_token = this.jwtService.sign(payload,{secret:process.env.SECRET_KEY})
         return {
             access_token,
