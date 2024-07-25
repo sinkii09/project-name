@@ -126,7 +126,7 @@ export class UsersService {
     
         return { inventory };
       }
-      async equipItem(userId: string, itemId: string): Promise<InventoryItem> {
+      async equipItem(userId: string, itemId: string): Promise<any> {
         const user = await this.userModel.findById(userId);
         if (!user) {
             throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -157,8 +157,8 @@ export class UsersService {
         await Promise.all(unequipPromises);
         inventoryItem.equipped = true;
         await user.save();
-    
-        return inventoryItem;
+        const itemDetails = item;
+        return {itemDetails};
       }
 async getEquippedItemsForUsers(userIds: Types.ObjectId[]): Promise<any[]> {
 
