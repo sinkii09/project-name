@@ -39,7 +39,7 @@ export class User
     @Prop({type:Number, required:false, default:1000})
     rankpoints: number;
 
-    @Prop({type:Number, required:false, default: 100})
+    @Prop({type:Number, required:false, default: 300})
     gold: number;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'GameSession', required: false})

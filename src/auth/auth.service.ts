@@ -1,4 +1,4 @@
-import { Body, Headers, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Body, Headers, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
@@ -57,18 +57,25 @@ export class AuthService {
     }
     async signUp(createUserDto:CreateUserDto): Promise<any>
     {
-        const user = await this.userService.findUser(createUserDto.username)
-        const userWithName = await this.userService.findName(createUserDto.name)
-        if(user)
-            {
-                throw new UnauthorizedException("user exists!")
-            }
-        if(userWithName)
-            {
-                throw new UnauthorizedException("name have been chosen, please use other name!")
-            }
+      try {
+        const user = await this.userService.findUser(createUserDto.username);
+        if (user) {
+          throw new BadRequestException('User already exists!');
+        }
+  
+        const userWithName = await this.userService.findName(createUserDto.name);
+        if (userWithName) {
+          throw new BadRequestException('Name has been chosen, please use another name!');
+        }
+  
         const createUser = await this.userService.createUser(createUserDto);
-        return this.signIn(createUser)
+        return this.signIn(createUser);
+      } catch (error) {
+        if (error instanceof BadRequestException || error instanceof UnauthorizedException) {
+          throw error;
+        }
+        throw new BadRequestException('An error occurred during sign up');
+      }
     }
     async exchangeToken(): Promise<string>
     {
