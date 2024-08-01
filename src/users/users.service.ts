@@ -126,12 +126,28 @@ export class UsersService {
     
         return { inventory };
       }
-      async equipItem(userId: string, itemId: string): Promise<any> {
+    async equipItem(userId: string, itemId: string): Promise<any> {
         const user = await this.userModel.findById(userId);
         if (!user) {
             throw new HttpException('User not found', HttpStatus.NOT_FOUND);
         }
-    
+        if (itemId === null || itemId === undefined || itemId.trim() === "") {
+            console.log("ItemId is empty:", itemId);}
+        if(itemId === null || itemId === undefined || itemId === '""')
+        {
+            console.log(itemId.toString())
+            const unequipPromises = user.inventory
+        .filter(i => i.equipped)
+        .map(async (i) => {
+            const itemInInventory = await this.itemModel.findById(i.itemId).exec();
+            if (itemInInventory) {
+                i.equipped = false;
+            }
+        });
+        await Promise.all(unequipPromises);
+        await user.save();
+        return {message:"unequipItem success"};
+        }
         const inventoryItem = user.inventory.find(i => i.itemId.toString() === itemId);
         if (!inventoryItem) {
             throw new HttpException('Item not found in user inventory', HttpStatus.NOT_FOUND);

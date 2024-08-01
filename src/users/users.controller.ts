@@ -102,12 +102,10 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     @Patch(':itemId/equip-item')
     async equipItem(@Param('itemId') itemId: string,@Request() req){
-        try {
+      console.log(`Received itemId: ${itemId}`);
             const item = await this.userService.equipItem(req.user._id, itemId);
             return item;
-          } catch (error) {
-            throw new HttpException(error.message, error.status || HttpStatus.INTERNAL_SERVER_ERROR);
-          }
+
     }
     @UseGuards(JwtAuthGuard)
     @Get('get-allplayers-equipped')
