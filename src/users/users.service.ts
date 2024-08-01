@@ -133,7 +133,7 @@ export class UsersService {
         }
         if (itemId === null || itemId === undefined || itemId.trim() === "") {
             console.log("ItemId is empty:", itemId);}
-        if(itemId === null || itemId === undefined || itemId === '""')
+        if(itemId === "0")
         {
             console.log(itemId.toString())
             const unequipPromises = user.inventory
